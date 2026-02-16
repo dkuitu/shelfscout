@@ -1,16 +1,35 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { StoresService } from '../services/stores.service';
+import { nearbyQuerySchema, suggestStoreSchema } from '../schemas/store.schema';
+import { AuthenticatedRequest } from '../types';
 
-export async function getNearbyStores(_req: Request, res: Response) {
-  // TODO: Implement nearby store lookup with PostGIS
-  res.status(501).json({ error: 'Not implemented' });
+const storesService = new StoresService();
+
+export async function getNearbyStores(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { lat, lng, radius } = nearbyQuerySchema.parse(req.query);
+    const stores = await storesService.getNearby(lat, lng, radius);
+    res.json({ stores });
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getStore(_req: Request, res: Response) {
-  // TODO: Implement get store by ID
-  res.status(501).json({ error: 'Not implemented' });
+export async function getStore(req: Request, res: Response, next: NextFunction) {
+  try {
+    const store = await storesService.getById(req.params.id);
+    res.json({ store });
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function suggestStore(_req: Request, res: Response) {
-  // TODO: Implement store suggestion for admin review
-  res.status(501).json({ error: 'Not implemented' });
+export async function suggestStore(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = suggestStoreSchema.parse(req.body);
+    const store = await storesService.suggest(data.name, data.address, data.lat, data.lng, data.chain);
+    res.status(201).json({ store });
+  } catch (err) {
+    next(err);
+  }
 }

@@ -1,16 +1,35 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { CrownsService } from '../services/crowns.service';
+import { AuthenticatedRequest } from '../types';
 
-export async function getCrowns(_req: Request, res: Response) {
-  // TODO: Implement get crowns for a region
-  res.status(501).json({ error: 'Not implemented' });
+const crownsService = new CrownsService();
+
+export async function getCrowns(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { regionId } = req.params;
+    const cycleId = req.query.cycle_id as string | undefined;
+    const crowns = await crownsService.getCrowns(regionId, cycleId);
+    res.json({ crowns });
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getCrownHistory(_req: Request, res: Response) {
-  // TODO: Implement crown transfer history
-  res.status(501).json({ error: 'Not implemented' });
+export async function getCrownHistory(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await crownsService.getHistory(req.params.id);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getUserCrowns(_req: Request, res: Response) {
-  // TODO: Implement get crowns held by current user
-  res.status(501).json({ error: 'Not implemented' });
+export async function getUserCrowns(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { userId } = req as AuthenticatedRequest;
+    const crowns = await crownsService.getUserCrowns(userId!);
+    res.json({ crowns });
+  } catch (err) {
+    next(err);
+  }
 }
