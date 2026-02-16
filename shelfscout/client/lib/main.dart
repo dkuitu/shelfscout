@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'config/theme.dart';
 import 'config/routes.dart';
+import 'services/api_client.dart';
 import 'providers/auth_provider.dart';
 import 'providers/map_provider.dart';
 import 'providers/submission_provider.dart';
@@ -12,29 +13,32 @@ import 'providers/user_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ShelfScoutApp());
+  final apiClient = ApiClient();
+  runApp(ShelfScoutApp(apiClient: apiClient));
 }
 
 class ShelfScoutApp extends StatelessWidget {
-  const ShelfScoutApp({super.key});
+  final ApiClient apiClient;
+
+  const ShelfScoutApp({super.key, required this.apiClient});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => MapProvider()),
-        ChangeNotifierProvider(create: (_) => SubmissionProvider()),
-        ChangeNotifierProvider(create: (_) => CrownProvider()),
-        ChangeNotifierProvider(create: (_) => LeaderboardProvider()),
-        ChangeNotifierProvider(create: (_) => ValidationProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider(apiClient)),
+        ChangeNotifierProvider(create: (_) => MapProvider(apiClient)),
+        ChangeNotifierProvider(create: (_) => SubmissionProvider(apiClient)),
+        ChangeNotifierProvider(create: (_) => CrownProvider(apiClient)),
+        ChangeNotifierProvider(create: (_) => LeaderboardProvider(apiClient)),
+        ChangeNotifierProvider(create: (_) => ValidationProvider(apiClient)),
+        ChangeNotifierProvider(create: (_) => UserProvider(apiClient)),
       ],
       child: MaterialApp(
         title: 'ShelfScout',
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        initialRoute: AppRoutes.onboarding,
+        initialRoute: AppRoutes.login,
         routes: AppRoutes.routes,
         debugShowCheckedModeBanner: false,
       ),

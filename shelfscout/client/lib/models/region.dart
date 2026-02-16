@@ -1,5 +1,3 @@
-// TODO: Add json_serializable annotations and generate fromJson/toJson
-
 class Region {
   final String id;
   final String name;
@@ -10,4 +8,12 @@ class Region {
     required this.name,
     required this.country,
   });
+
+  factory Region.fromJson(Map<String, dynamic> json) {
+    return Region(
+      id: json['id'].toString(),
+      name: json['name'] as String,
+      country: json['country'] as String,
+    );
+  }
 }

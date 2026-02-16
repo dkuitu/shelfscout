@@ -1,24 +1,31 @@
+import '../models/crown.dart';
 import 'api_client.dart';
-
-// TODO: Implement crown service
 
 class CrownService {
   final ApiClient _api;
 
   CrownService(this._api);
 
-  Future<List<dynamic>> getRegionCrowns(String regionId) async {
-    // TODO: GET /crowns/region/:regionId
-    throw UnimplementedError();
+  Future<List<Crown>> getRegionCrowns(String regionId) async {
+    final res = await _api.get('/crowns/region/$regionId');
+    final data = res.data as Map<String, dynamic>;
+    final list = data['crowns'] as List<dynamic>;
+    return list
+        .map((j) => Crown.fromJson(j as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<List<dynamic>> getUserCrowns() async {
-    // TODO: GET /crowns/mine
-    throw UnimplementedError();
+  Future<List<Crown>> getUserCrowns() async {
+    final res = await _api.get('/crowns/mine');
+    final data = res.data as Map<String, dynamic>;
+    final list = data['crowns'] as List<dynamic>;
+    return list
+        .map((j) => Crown.fromJson(j as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<List<dynamic>> getCrownHistory(String itemId) async {
-    // TODO: GET /crowns/history/:itemId
-    throw UnimplementedError();
+  Future<Map<String, dynamic>> getCrownHistory(String crownId) async {
+    final res = await _api.get('/crowns/history/$crownId');
+    return res.data as Map<String, dynamic>;
   }
 }

@@ -1,29 +1,46 @@
+import '../models/submission.dart';
 import 'api_client.dart';
-
-// TODO: Implement submission service
 
 class SubmissionService {
   final ApiClient _api;
 
   SubmissionService(this._api);
 
-  Future<void> createSubmission({
+  Future<Submission> createSubmission({
     required String storeId,
     required String itemId,
     required double price,
-    required String photoPath,
+    required String photoUrl,
+    required double gpsLat,
+    required double gpsLng,
   }) async {
-    // TODO: POST /submissions with multipart photo upload
-    throw UnimplementedError();
+    final res = await _api.post('/submissions', data: {
+      'store_id': storeId,
+      'item_id': itemId,
+      'price': price,
+      'photo_url': photoUrl,
+      'gps_lat': gpsLat,
+      'gps_lng': gpsLng,
+    });
+    final data = res.data as Map<String, dynamic>;
+    return Submission.fromJson(data['submission'] as Map<String, dynamic>);
   }
 
-  Future<List<dynamic>> getUserSubmissions() async {
-    // TODO: GET /submissions/mine
-    throw UnimplementedError();
+  Future<List<Submission>> getUserSubmissions() async {
+    final res = await _api.get('/submissions/mine');
+    final data = res.data as Map<String, dynamic>;
+    final list = data['submissions'] as List<dynamic>;
+    return list
+        .map((j) => Submission.fromJson(j as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<List<dynamic>> getStoreSubmissions(String storeId) async {
-    // TODO: GET /submissions/store/:storeId
-    throw UnimplementedError();
+  Future<List<Submission>> getStoreSubmissions(String storeId) async {
+    final res = await _api.get('/submissions/store/$storeId');
+    final data = res.data as Map<String, dynamic>;
+    final list = data['submissions'] as List<dynamic>;
+    return list
+        .map((j) => Submission.fromJson(j as Map<String, dynamic>))
+        .toList();
   }
 }
