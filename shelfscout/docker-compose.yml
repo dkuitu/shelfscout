@@ -6,7 +6,7 @@ services:
     container_name: shelfscout-db
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: shelfscout
       POSTGRES_PASSWORD: shelfscout_dev

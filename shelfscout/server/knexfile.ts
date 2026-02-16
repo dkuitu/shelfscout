@@ -8,7 +8,7 @@ const config: Record<string, Knex.Config> = {
     client: 'pg',
     connection: process.env.DATABASE_URL || {
       host: 'localhost',
-      port: 5432,
+      port: 5433,
       user: 'shelfscout',
       password: 'shelfscout_dev',
       database: 'shelfscout',
