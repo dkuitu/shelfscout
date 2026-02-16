@@ -3,9 +3,13 @@ import { ValidationError, NotFoundError } from '../utils/errors';
 import { VALIDATION_THRESHOLD } from '../utils/constants';
 import { CrownsService } from './crowns.service';
 import { SubmissionsService } from './submissions.service';
+import { BadgesService } from './badges.service';
+import { TrustService } from './trust.service';
 
 const crownsService = new CrownsService();
 const submissionsService = new SubmissionsService();
+const badgesService = new BadgesService();
+const trustService = new TrustService();
 
 export class ValidationService {
   async getQueue(userId: string, limit = 5) {
@@ -64,7 +68,26 @@ export class ValidationService {
 
     const consensus = await this.checkConsensus(submissionId);
 
-    return { validation, ...consensus };
+    // Check badges for the validator
+    const badgesAwarded = await badgesService.checkAndAward(validatorId);
+
+    // If consensus reached, recalculate trust scores and check badges for the submitter
+    if (consensus.consensusReached) {
+      const sub = await db('submissions').where({ id: submissionId }).first();
+      if (sub) {
+        await badgesService.checkAndAward(sub.user_id);
+        await trustService.recalculate(sub.user_id);
+      }
+      // Also recalculate trust for all validators on this submission
+      const validators = await db('validations')
+        .where({ submission_id: submissionId })
+        .select('validator_id');
+      for (const v of validators) {
+        await trustService.recalculate(v.validator_id);
+      }
+    }
+
+    return { validation, ...consensus, badgesAwarded };
   }
 
   async checkConsensus(submissionId: string) {

@@ -1,16 +1,32 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { LeaderboardsService } from '../services/leaderboards.service';
 
-export async function getRegionalLeaderboard(_req: Request, res: Response) {
-  // TODO: Implement regional leaderboard
-  res.status(501).json({ error: 'Not implemented' });
+const leaderboardsService = new LeaderboardsService();
+
+export async function getRegionalLeaderboard(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { regionId } = req.params;
+    const leaderboard = await leaderboardsService.getRegional(regionId);
+    res.json({ leaderboard });
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getNationalLeaderboard(_req: Request, res: Response) {
-  // TODO: Implement national leaderboard
-  res.status(501).json({ error: 'Not implemented' });
+export async function getNationalLeaderboard(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const leaderboard = await leaderboardsService.getNational();
+    res.json({ leaderboard });
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getWeeklyLeaderboard(_req: Request, res: Response) {
-  // TODO: Implement weekly leaderboard
-  res.status(501).json({ error: 'Not implemented' });
+export async function getWeeklyLeaderboard(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const leaderboard = await leaderboardsService.getWeekly();
+    res.json({ leaderboard });
+  } catch (err) {
+    next(err);
+  }
 }

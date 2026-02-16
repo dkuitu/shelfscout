@@ -1,6 +1,9 @@
 import db from '../config/database';
 import { ValidationError, NotFoundError } from '../utils/errors';
 import { STORE_PROXIMITY_RADIUS } from '../utils/constants';
+import { BadgesService } from './badges.service';
+
+const badgesService = new BadgesService();
 
 export class SubmissionsService {
   async create(
@@ -55,7 +58,10 @@ export class SubmissionsService {
       })
       .returning('*');
 
-    return submission;
+    // Check for First Submission badge
+    const badgesAwarded = await badgesService.checkAndAward(userId);
+
+    return { ...submission, badgesAwarded };
   }
 
   async getById(id: string) {
