@@ -10,18 +10,21 @@ class SubmissionService {
     required String storeId,
     required String itemId,
     required double price,
-    required String photoUrl,
+    String? photoUrl,
     required double gpsLat,
     required double gpsLng,
   }) async {
-    final res = await _api.post('/submissions', data: {
+    final payload = <String, dynamic>{
       'store_id': storeId,
       'item_id': itemId,
       'price': price,
-      'photo_url': photoUrl,
       'gps_lat': gpsLat,
       'gps_lng': gpsLng,
-    });
+    };
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      payload['photo_url'] = photoUrl;
+    }
+    final res = await _api.post('/submissions', data: payload);
     final data = res.data as Map<String, dynamic>;
     return Submission.fromJson(data['submission'] as Map<String, dynamic>);
   }

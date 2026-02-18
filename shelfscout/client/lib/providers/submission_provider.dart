@@ -24,7 +24,7 @@ class SubmissionProvider extends ChangeNotifier {
     required String storeId,
     required String itemId,
     required double price,
-    required String photoUrl,
+    String? photoUrl,
     required double gpsLat,
     required double gpsLng,
   }) async {

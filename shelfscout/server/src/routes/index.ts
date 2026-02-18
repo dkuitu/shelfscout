@@ -7,6 +7,7 @@ import leaderboardsRoutes from './leaderboards';
 import validationRoutes from './validation';
 import mapsRoutes from './maps';
 import usersRoutes from './users';
+import itemsRoutes from './items';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/leaderboards', leaderboardsRoutes);
 router.use('/validation', validationRoutes);
 router.use('/maps', mapsRoutes);
 router.use('/users', usersRoutes);
+router.use('/items', itemsRoutes);
 
 export default router;

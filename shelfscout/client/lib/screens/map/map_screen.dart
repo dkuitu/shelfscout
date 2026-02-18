@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../../config/constants.dart';
 import '../../config/theme.dart';
+import '../../models/item.dart';
 import '../../models/store.dart';
 import '../../providers/map_provider.dart';
 import '../submission/submission_screen.dart';
@@ -134,21 +135,6 @@ class _MapTab extends StatefulWidget {
 class _MapTabState extends State<_MapTab> {
   final MapController _mapController = MapController();
 
-  PinStatus _mockPinStatus(int index) {
-    switch (index) {
-      case 0:
-      case 1:
-        return PinStatus.crowned;
-      case 2:
-      case 3:
-        return PinStatus.scouted;
-      case 4:
-        return PinStatus.contested;
-      default:
-        return PinStatus.unscouted;
-    }
-  }
-
   void _onStoreTap(Store store, PinStatus status) {
     context.read<MapProvider>().selectStore(store);
     showModalBottomSheet(
@@ -191,13 +177,8 @@ class _MapTabState extends State<_MapTab> {
               MarkerLayer(
                 markers: mapProvider.stores
                     .where((s) => s.latitude != null && s.longitude != null)
-                    .toList()
-                    .asMap()
-                    .entries
-                    .map((entry) {
-                  final index = entry.key;
-                  final store = entry.value;
-                  final status = _mockPinStatus(index);
+                    .map((store) {
+                  final status = mapProvider.pinStatusForStore(store.id);
                   return Marker(
                     point: LatLng(store.latitude!, store.longitude!),
                     width: 40,
@@ -243,54 +224,69 @@ class _MapTabState extends State<_MapTab> {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppTheme.deepNavy.withAlpha(220),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.goldColor.withAlpha(60)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(80),
-                      blurRadius: 12,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppTheme.deepNavy.withAlpha(220),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.goldColor.withAlpha(60)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(80),
+                          blurRadius: 12,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.emoji_events,
+                            color: AppTheme.goldColor, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'WEEKLY CHALLENGE',
+                                style: GoogleFonts.orbitron(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.goldColor,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Scout 5 stores to earn the Explorer badge',
+                                style: GoogleFonts.rajdhani(
+                                  fontSize: 13,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right, color: Colors.white38),
+                      ],
+                    ),
+                  ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.3),
+
+                  // Item filter chips
+                  if (mapProvider.weeklyItems.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    _ItemFilterBar(
+                      items: mapProvider.weeklyItems,
+                      selectedItem: mapProvider.selectedItem,
+                      onItemSelected: (item) => mapProvider.selectItem(item),
                     ),
                   ],
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.emoji_events,
-                        color: AppTheme.goldColor, size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'WEEKLY CHALLENGE',
-                            style: GoogleFonts.orbitron(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.goldColor,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Scout 5 stores to earn the Explorer badge',
-                            style: GoogleFonts.rajdhani(
-                              fontSize: 13,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right, color: Colors.white38),
-                  ],
-                ),
-              ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.3),
+                ],
+              ),
             ),
           ),
 
@@ -375,13 +371,121 @@ class _MapTabState extends State<_MapTab> {
           StoreListSheet(
             stores: mapProvider.stores,
             onStoreTap: (store) {
-              final index = mapProvider.stores.indexOf(store);
-              _onStoreTap(store, _mockPinStatus(index));
+              final status = mapProvider.pinStatusForStore(store.id);
+              _onStoreTap(store, status);
             },
-            statusForIndex: _mockPinStatus,
+            pinStatusForStore: (store) => mapProvider.pinStatusForStore(store.id),
           ),
         ],
       ),
     );
+  }
+}
+
+class _ItemFilterBar extends StatelessWidget {
+  final List<Item> items;
+  final Item? selectedItem;
+  final void Function(Item?) onItemSelected;
+
+  const _ItemFilterBar({
+    required this.items,
+    required this.selectedItem,
+    required this.onItemSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      decoration: BoxDecoration(
+        color: AppTheme.deepNavy.withAlpha(200),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withAlpha(10)),
+      ),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        children: [
+          // "All" chip to clear filter
+          _buildChip(
+            label: 'All',
+            isSelected: selectedItem == null,
+            onTap: () => onItemSelected(null),
+            icon: Icons.grid_view,
+          ),
+          ...items.map((item) => _buildChip(
+                label: item.displayName,
+                isSelected: selectedItem?.id == item.id,
+                onTap: () => onItemSelected(item),
+                icon: _categoryIcon(item.category),
+              )),
+        ],
+      ),
+    ).animate().fadeIn(duration: 400.ms, delay: 200.ms).slideY(begin: -0.2);
+  }
+
+  Widget _buildChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required IconData icon,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.conquestGreen.withAlpha(30)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? AppTheme.conquestGreen : Colors.white12,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 12,
+              color: isSelected ? AppTheme.conquestGreen : Colors.white38,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: GoogleFonts.rajdhani(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? AppTheme.conquestGreen : Colors.white54,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _categoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'dairy':
+        return Icons.water_drop;
+      case 'bakery':
+      case 'bread':
+        return Icons.bakery_dining;
+      case 'produce':
+      case 'fruit':
+      case 'vegetable':
+        return Icons.eco;
+      case 'meat':
+      case 'protein':
+        return Icons.restaurant;
+      case 'beverage':
+      case 'drink':
+        return Icons.local_cafe;
+      default:
+        return Icons.shopping_basket;
+    }
   }
 }

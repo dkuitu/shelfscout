@@ -10,6 +10,7 @@ import 'providers/crown_provider.dart';
 import 'providers/leaderboard_provider.dart';
 import 'providers/validation_provider.dart';
 import 'providers/user_provider.dart';
+import 'providers/item_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,7 @@ class ShelfScoutApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LeaderboardProvider(apiClient)),
         ChangeNotifierProvider(create: (_) => ValidationProvider(apiClient)),
         ChangeNotifierProvider(create: (_) => UserProvider(apiClient)),
+        ChangeNotifierProvider(create: (_) => ItemProvider(apiClient)),
       ],
       child: MaterialApp(
         title: 'ShelfScout',

@@ -87,6 +87,7 @@ export class CrownsService {
     const query = db('crowns')
       .join('items', 'crowns.item_id', 'items.id')
       .join('users', 'crowns.holder_id', 'users.id')
+      .join('submissions', 'crowns.submission_id', 'submissions.id')
       .where({ 'crowns.region_id': regionId })
       .select(
         'crowns.id',
@@ -97,7 +98,8 @@ export class CrownsService {
         'crowns.lowest_price',
         'crowns.status',
         'crowns.claimed_at',
-        'crowns.cycle_id'
+        'crowns.cycle_id',
+        'submissions.store_id'
       );
 
     if (cycleId) {

@@ -12,6 +12,7 @@ class Crown {
   final CrownStatus status;
   final String? cycleId;
   final DateTime claimedAt;
+  final String? storeId;
 
   Crown({
     required this.id,
@@ -25,6 +26,7 @@ class Crown {
     required this.status,
     this.cycleId,
     required this.claimedAt,
+    this.storeId,
   });
 
   factory Crown.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class Crown {
       status: _parseStatus(json['status'] as String),
       cycleId: json['cycle_id']?.toString(),
       claimedAt: DateTime.parse(json['claimed_at'] as String),
+      storeId: json['store_id']?.toString(),
     );
   }
 

@@ -11,7 +11,7 @@ export class SubmissionsService {
     storeId: string,
     itemId: string,
     price: number,
-    photoUrl: string,
+    photoUrl: string | undefined,
     gpsLat: number,
     gpsLng: number
   ) {
@@ -44,18 +44,22 @@ export class SubmissionsService {
       );
     }
 
-    const [submission] = await db('submissions')
-      .insert({
+    const insertData: Record<string, unknown> = {
         user_id: userId,
         store_id: storeId,
         item_id: itemId,
         cycle_id: cycle.id,
         price,
-        photo_url: photoUrl,
         gps_lat: gpsLat,
         gps_lng: gpsLng,
         status: 'pending',
-      })
+    };
+    if (photoUrl) {
+      insertData.photo_url = photoUrl;
+    }
+
+    const [submission] = await db('submissions')
+      .insert(insertData)
       .returning('*');
 
     // Check for First Submission badge

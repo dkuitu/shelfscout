@@ -8,13 +8,13 @@ import 'store_pin.dart';
 class StoreListSheet extends StatelessWidget {
   final List<Store> stores;
   final void Function(Store store) onStoreTap;
-  final PinStatus Function(int index)? statusForIndex;
+  final PinStatus Function(Store store)? pinStatusForStore;
 
   const StoreListSheet({
     super.key,
     required this.stores,
     required this.onStoreTap,
-    this.statusForIndex,
+    this.pinStatusForStore,
   });
 
   @override
@@ -126,7 +126,7 @@ class StoreListSheet extends StatelessWidget {
                           final store = stores[index];
                           return StoreCard(
                             store: store,
-                            status: statusForIndex?.call(index) ?? PinStatus.unscouted,
+                            status: pinStatusForStore?.call(store) ?? PinStatus.unscouted,
                             onTap: () => onStoreTap(store),
                           );
                         },
