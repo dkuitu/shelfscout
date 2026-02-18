@@ -4,44 +4,79 @@ export async function seed(knex: Knex): Promise<void> {
   await knex('stores').del();
   await knex('regions').del();
 
-  // Vancouver Metro bounding box polygon
-  const vancouverBoundary = `SRID=4326;POLYGON((
-    -123.28 49.18,
-    -122.98 49.18,
-    -122.98 49.36,
-    -123.28 49.36,
-    -123.28 49.18
+  // Kelowna bounding box polygon
+  const kelownaBoundary = `SRID=4326;POLYGON((
+    -119.60 49.82,
+    -119.35 49.82,
+    -119.35 49.95,
+    -119.60 49.95,
+    -119.60 49.82
   ))`;
 
   const [region] = await knex('regions')
     .insert({
-      name: 'Vancouver Metro',
+      name: 'Kelowna',
       country: 'CA',
-      boundary: knex.raw(`ST_GeogFromText('${vancouverBoundary}')`),
+      boundary: knex.raw(`ST_GeogFromText('${kelownaBoundary}')`),
     })
     .returning('id');
 
   await knex('stores').insert([
     {
-      name: 'Save-On-Foods',
-      address: '1641 Davie St, Vancouver, BC V6G 1W2',
-      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-123.1375 49.2780)')"),
+      name: 'Save-On-Foods (Orchard Park)',
+      address: '2271 Harvey Ave, Kelowna, BC V1Y 6H2',
+      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-119.4520 49.8625)')"),
       region_id: region.id,
       chain: 'Save-On-Foods',
     },
     {
-      name: 'No Frills',
-      address: '3575 Commercial St, Vancouver, BC V5N 4E8',
-      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-123.0695 49.2488)')"),
+      name: 'Real Canadian Superstore',
+      address: '2155 Harvey Ave, Kelowna, BC V1Y 6G6',
+      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-119.4350 49.8700)')"),
+      region_id: region.id,
+      chain: 'Real Canadian Superstore',
+    },
+    {
+      name: 'Costco Kelowna',
+      address: '1905 Springfield Rd, Kelowna, BC V1Y 5V5',
+      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-119.4270 49.8840)')"),
+      region_id: region.id,
+      chain: 'Costco',
+    },
+    {
+      name: 'Walmart Supercentre',
+      address: '1876 Cooper Rd, Kelowna, BC V1Y 9N6',
+      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-119.4310 49.8780)')"),
+      region_id: region.id,
+      chain: 'Walmart',
+    },
+    {
+      name: 'No Frills (Rutland)',
+      address: '155 Rutland Rd N, Kelowna, BC V1X 3B1',
+      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-119.4080 49.8875)')"),
       region_id: region.id,
       chain: 'No Frills',
     },
     {
-      name: 'Whole Foods Market',
-      address: '510 W 8th Ave, Vancouver, BC V5Z 1C5',
-      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-123.1140 49.2640)')"),
+      name: 'FreshCo',
+      address: '1835 Gordon Dr, Kelowna, BC V1Y 3H5',
+      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-119.4950 49.8920)')"),
       region_id: region.id,
-      chain: 'Whole Foods',
+      chain: 'FreshCo',
+    },
+    {
+      name: 'Safeway (Harvey Ave)',
+      address: '591 Bernard Ave, Kelowna, BC V1Y 6N9',
+      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-119.4960 49.8870)')"),
+      region_id: region.id,
+      chain: 'Safeway',
+    },
+    {
+      name: 'Save-On-Foods (Glenmore)',
+      address: '2280 Glenmore Rd, Kelowna, BC V1V 2P7',
+      location: knex.raw("ST_GeogFromText('SRID=4326;POINT(-119.4840 49.9030)')"),
+      region_id: region.id,
+      chain: 'Save-On-Foods',
     },
   ]);
 }

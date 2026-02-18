@@ -10,6 +10,6 @@ class AppConstants {
 
   // Map defaults
   static const double defaultMapZoom = 14.0;
-  static const double defaultLat = 49.2827; // Vancouver
-  static const double defaultLng = -123.1207;
+  static const double defaultLat = 49.8880; // Kelowna
+  static const double defaultLng = -119.4960;
 }

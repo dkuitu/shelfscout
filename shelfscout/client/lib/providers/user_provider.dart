@@ -34,6 +34,10 @@ class UserProvider extends ChangeNotifier {
       _error = e.message ?? 'Failed to load profile';
       _isLoading = false;
       notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -49,6 +53,10 @@ class UserProvider extends ChangeNotifier {
       _error = e.message ?? 'Failed to load badges';
       _isLoading = false;
       notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -62,6 +70,10 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
     } on DioException catch (e) {
       _error = e.message ?? 'Failed to load stats';
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
       _isLoading = false;
       notifyListeners();
     }

@@ -36,7 +36,7 @@ class Crown {
       regionName: json['region_name'] as String?,
       holderId: json['holder_id'].toString(),
       holderUsername: json['holder_username'] as String?,
-      lowestPrice: (json['lowest_price'] as num).toDouble(),
+      lowestPrice: double.tryParse(json['lowest_price'].toString()) ?? 0.0,
       status: _parseStatus(json['status'] as String),
       cycleId: json['cycle_id']?.toString(),
       claimedAt: DateTime.parse(json['claimed_at'] as String),

@@ -46,6 +46,10 @@ class LeaderboardProvider extends ChangeNotifier {
       _error = e.message ?? 'Failed to load leaderboard';
       _isLoading = false;
       notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

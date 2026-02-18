@@ -10,6 +10,8 @@ export class StoresService {
         'stores.address',
         'stores.chain',
         'stores.region_id',
+        db.raw(`ST_Y(location::geometry) as latitude`),
+        db.raw(`ST_X(location::geometry) as longitude`),
         db.raw(
           `ST_Distance(location, ST_GeogFromText('SRID=4326;POINT(${lng} ${lat})')) as distance_meters`
         )
@@ -29,7 +31,15 @@ export class StoresService {
   async getById(id: string) {
     const store = await db('stores')
       .where({ id })
-      .select('id', 'name', 'address', 'chain', 'region_id')
+      .select(
+        'id',
+        'name',
+        'address',
+        'chain',
+        'region_id',
+        db.raw(`ST_Y(location::geometry) as latitude`),
+        db.raw(`ST_X(location::geometry) as longitude`)
+      )
       .first();
 
     if (!store) {

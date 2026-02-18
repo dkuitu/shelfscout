@@ -24,7 +24,7 @@ class User {
       username: json['username'] as String,
       regionId: json['region_id']?.toString(),
       regionName: json['region_name'] as String?,
-      trustScore: (json['trust_score'] as num?)?.toDouble() ?? 50.0,
+      trustScore: double.tryParse(json['trust_score'].toString()) ?? 50.0,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }

@@ -30,6 +30,10 @@ class ValidationProvider extends ChangeNotifier {
       _error = e.message ?? 'Failed to load validation queue';
       _isLoading = false;
       notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -50,6 +54,10 @@ class ValidationProvider extends ChangeNotifier {
       } else {
         _error = e.message ?? 'Failed to submit vote';
       }
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = e.toString();
       notifyListeners();
       return false;
     }

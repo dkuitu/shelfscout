@@ -31,11 +31,11 @@ class ValidationItem {
       userId: json['user_id'].toString(),
       storeId: json['store_id'].toString(),
       itemId: json['item_id'].toString(),
-      price: (json['price'] as num).toDouble(),
+      price: double.tryParse(json['price'].toString()) ?? 0.0,
       photoUrl: json['photo_url'] as String?,
       status: json['status'] as String,
-      gpsLat: (json['gps_lat'] as num?)?.toDouble(),
-      gpsLng: (json['gps_lng'] as num?)?.toDouble(),
+      gpsLat: json['gps_lat'] != null ? double.tryParse(json['gps_lat'].toString()) : null,
+      gpsLng: json['gps_lng'] != null ? double.tryParse(json['gps_lng'].toString()) : null,
       submittedAt: DateTime.parse(json['submitted_at'] as String),
     );
   }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../models/badge.dart';
+import '../../config/theme.dart';
+import '../../models/badge.dart' as models;
 import '../../providers/user_provider.dart';
 
 class BadgesScreen extends StatefulWidget {
@@ -22,26 +25,48 @@ class _BadgesScreenState extends State<BadgesScreen> {
     final provider = context.watch<UserProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Badges')),
+      appBar: AppBar(
+        title: Text(
+          'BADGES',
+          style: GoogleFonts.orbitron(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : provider.badges.isEmpty
-              ? const Center(
+              ? Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.military_tech, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text('No badges earned yet.'),
-                      SizedBox(height: 8),
-                      Text('Submit prices and validate to earn badges!',
-                          style: TextStyle(color: Colors.grey)),
+                      const Icon(Icons.military_tech,
+                          size: 64, color: Colors.white24),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No badges earned yet',
+                        style: GoogleFonts.rajdhani(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white54,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Submit prices and validate to earn badges!',
+                        style: GoogleFonts.rajdhani(
+                          fontSize: 14,
+                          color: Colors.white30,
+                        ),
+                      ),
                     ],
                   ),
                 )
               : GridView.builder(
                   padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
@@ -49,7 +74,10 @@ class _BadgesScreenState extends State<BadgesScreen> {
                   ),
                   itemCount: provider.badges.length,
                   itemBuilder: (context, index) {
-                    return _BadgeCard(badge: provider.badges[index]);
+                    return _BadgeCard(badge: provider.badges[index])
+                        .animate()
+                        .fadeIn(delay: (index * 60).ms)
+                        .scale(begin: const Offset(0.9, 0.9));
                   },
                 ),
     );
@@ -57,15 +85,43 @@ class _BadgesScreenState extends State<BadgesScreen> {
 }
 
 class _BadgeCard extends StatelessWidget {
-  final Badge badge;
+  final models.Badge badge;
 
   const _BadgeCard({required this.badge});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final isLegendary = badge.rarity == models.BadgeRarity.legendary;
+    final isEpic = badge.rarity == models.BadgeRarity.epic;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _rarityColor.withAlpha(isLegendary ? 120 : 50),
+          width: isLegendary || isEpic ? 2 : 1,
+        ),
+        boxShadow: isLegendary
+            ? [
+                BoxShadow(
+                  color: AppTheme.goldColor.withAlpha(50),
+                  blurRadius: 16,
+                  spreadRadius: 2,
+                ),
+              ]
+            : isEpic
+                ? [
+                    BoxShadow(
+                      color: AppTheme.epicPurple.withAlpha(30),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : null,
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: () => _showDetail(context),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -77,27 +133,34 @@ class _BadgeCard extends StatelessWidget {
                 size: 48,
                 color: _rarityColor,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
                 badge.name,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.rajdhani(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _rarityColor.withAlpha(30),
+                  color: _rarityColor.withAlpha(20),
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _rarityColor.withAlpha(40)),
                 ),
                 child: Text(
                   badge.rarity.name.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.orbitron(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
                     color: _rarityColor,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
@@ -111,54 +174,87 @@ class _BadgeCard extends StatelessWidget {
   void _showDetail(BuildContext context) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.military_tech, color: _rarityColor),
-            const SizedBox(width: 8),
-            Expanded(child: Text(badge.name)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(badge.description),
-            const SizedBox(height: 12),
-            Text(
-              'Rarity: ${badge.rarity.name}',
-              style: TextStyle(color: _rarityColor, fontWeight: FontWeight.bold),
-            ),
-            if (badge.earnedAt != null) ...[
-              const SizedBox(height: 4),
+      builder: (ctx) => Dialog(
+        backgroundColor: AppTheme.surfaceCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.military_tech, color: _rarityColor, size: 56),
+              const SizedBox(height: 14),
               Text(
-                'Earned: ${badge.earnedAt!.toLocal().toString().split('.').first}',
-                style: Theme.of(context).textTheme.bodySmall,
+                badge.name,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.orbitron(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _rarityColor.withAlpha(20),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  badge.rarity.name.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: _rarityColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                badge.description,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.rajdhani(
+                  fontSize: 15,
+                  color: Colors.white70,
+                ),
+              ),
+              if (badge.earnedAt != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Earned: ${badge.earnedAt!.toLocal().toString().split('.').first}',
+                  style: GoogleFonts.rajdhani(
+                    fontSize: 12,
+                    color: Colors.white30,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Close'),
+                ),
               ),
             ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Color get _rarityColor {
     switch (badge.rarity) {
-      case BadgeRarity.legendary:
-        return const Color(0xFFFFD600);
-      case BadgeRarity.epic:
-        return Colors.purple;
-      case BadgeRarity.rare:
-        return Colors.blue;
-      case BadgeRarity.uncommon:
-        return Colors.green;
-      case BadgeRarity.common:
+      case models.BadgeRarity.legendary:
+        return AppTheme.legendaryGold;
+      case models.BadgeRarity.epic:
+        return AppTheme.epicPurple;
+      case models.BadgeRarity.rare:
+        return AppTheme.rareBlue;
+      case models.BadgeRarity.uncommon:
+        return AppTheme.uncommonGreen;
+      case models.BadgeRarity.common:
         return Colors.grey;
     }
   }

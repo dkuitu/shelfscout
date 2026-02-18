@@ -53,6 +53,11 @@ class SubmissionProvider extends ChangeNotifier {
       _isSubmitting = false;
       notifyListeners();
       return false;
+    } catch (e) {
+      _error = e.toString();
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
     }
   }
 
@@ -66,6 +71,10 @@ class SubmissionProvider extends ChangeNotifier {
       notifyListeners();
     } on DioException catch (e) {
       _error = e.message ?? 'Failed to load submissions';
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
       _isLoading = false;
       notifyListeners();
     }

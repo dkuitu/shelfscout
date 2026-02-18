@@ -36,8 +36,9 @@ class ShelfScoutApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'ShelfScout',
-        theme: AppTheme.light,
+        theme: AppTheme.dark,
         darkTheme: AppTheme.dark,
+        themeMode: ThemeMode.dark,
         initialRoute: AppRoutes.login,
         routes: AppRoutes.routes,
         debugShowCheckedModeBanner: false,

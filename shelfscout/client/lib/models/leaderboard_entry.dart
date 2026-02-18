@@ -24,11 +24,11 @@ class LeaderboardEntry {
       rank: index + 1,
       userId: json['id'].toString(),
       username: json['username'] as String,
-      crownCount: (json['crown_count'] as num?)?.toInt() ?? 0,
-      submissionCount: (json['submission_count'] as num?)?.toInt() ?? 0,
-      trustScore: (json['trust_score'] as num?)?.toDouble(),
-      verifiedSubmissions: (json['verified_submissions'] as num?)?.toInt(),
-      bestPrice: (json['best_price'] as num?)?.toDouble(),
+      crownCount: int.tryParse(json['crown_count'].toString()) ?? 0,
+      submissionCount: int.tryParse(json['submission_count'].toString()) ?? 0,
+      trustScore: json['trust_score'] != null ? double.tryParse(json['trust_score'].toString()) : null,
+      verifiedSubmissions: json['verified_submissions'] != null ? int.tryParse(json['verified_submissions'].toString()) : null,
+      bestPrice: json['best_price'] != null ? double.tryParse(json['best_price'].toString()) : null,
     );
   }
 }

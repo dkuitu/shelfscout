@@ -31,6 +31,10 @@ class CrownProvider extends ChangeNotifier {
       _error = e.message ?? 'Failed to load crowns';
       _isLoading = false;
       notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -44,6 +48,10 @@ class CrownProvider extends ChangeNotifier {
       notifyListeners();
     } on DioException catch (e) {
       _error = e.message ?? 'Failed to load region crowns';
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
       _isLoading = false;
       notifyListeners();
     }
