@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/environment.dart';
@@ -43,5 +44,14 @@ class ApiClient {
 
   Future<Response> delete(String path) {
     return _dio.delete(path);
+  }
+
+  Future<Response> uploadFile(String path, String filePath) async {
+    final file = File(filePath);
+    final fileName = file.path.split('/').last;
+    final formData = FormData.fromMap({
+      'photo': await MultipartFile.fromFile(filePath, filename: fileName),
+    });
+    return _dio.post(path, data: formData);
   }
 }

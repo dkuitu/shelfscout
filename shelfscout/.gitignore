@@ -55,6 +55,8 @@ client/.metadata
 
 # Server
 server/dist/
+server/uploads/*
+!server/uploads/.gitkeep
 
 # Redis
 dump.rdb

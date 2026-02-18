@@ -2,33 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../config/environment.dart';
 import '../../config/theme.dart';
-import '../../models/validation.dart';
-import '../../providers/validation_provider.dart';
+import '../../models/item.dart';
+import '../../providers/item_provider.dart';
 
-class ValidationQueueScreen extends StatefulWidget {
-  const ValidationQueueScreen({super.key});
+class PendingItemsScreen extends StatefulWidget {
+  const PendingItemsScreen({super.key});
 
   @override
-  State<ValidationQueueScreen> createState() => _ValidationQueueScreenState();
+  State<PendingItemsScreen> createState() => _PendingItemsScreenState();
 }
 
-class _ValidationQueueScreenState extends State<ValidationQueueScreen> {
+class _PendingItemsScreenState extends State<PendingItemsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<ValidationProvider>().loadQueue());
+    Future.microtask(() => context.read<ItemProvider>().loadPendingItems());
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ValidationProvider>();
+    final provider = context.watch<ItemProvider>();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'VERIFY INTEL',
+          'PENDING ITEMS',
           style: GoogleFonts.orbitron(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -37,7 +36,7 @@ class _ValidationQueueScreenState extends State<ValidationQueueScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white54),
-            onPressed: () => context.read<ValidationProvider>().loadQueue(),
+            onPressed: () => context.read<ItemProvider>().loadPendingItems(),
           ),
         ],
       ),
@@ -61,23 +60,23 @@ class _ValidationQueueScreenState extends State<ValidationQueueScreen> {
                   const SizedBox(height: 16),
                   FilledButton(
                     onPressed: () =>
-                        context.read<ValidationProvider>().loadQueue(),
+                        context.read<ItemProvider>().loadPendingItems(),
                     child: const Text('Retry'),
                   ),
                 ],
               ),
             );
           }
-          if (provider.queue.isEmpty) {
+          if (provider.pendingItems.isEmpty) {
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.verified,
+                  const Icon(Icons.check_circle_outline,
                       size: 64, color: AppTheme.conquestGreen),
                   const SizedBox(height: 16),
                   Text(
-                    'All clear, scout!',
+                    'No pending items',
                     style: GoogleFonts.orbitron(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -86,7 +85,7 @@ class _ValidationQueueScreenState extends State<ValidationQueueScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'No intel to verify right now.\nCheck back later!',
+                    'All community suggestions have\nbeen reviewed!',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.rajdhani(
                       fontSize: 14,
@@ -99,9 +98,9 @@ class _ValidationQueueScreenState extends State<ValidationQueueScreen> {
           }
           return ListView.builder(
             padding: const EdgeInsets.all(12),
-            itemCount: provider.queue.length,
+            itemCount: provider.pendingItems.length,
             itemBuilder: (context, index) {
-              return _ValidationCard(item: provider.queue[index])
+              return _PendingItemCard(item: provider.pendingItems[index])
                   .animate()
                   .fadeIn(delay: (index * 80).ms)
                   .slideX(begin: 0.05);
@@ -113,21 +112,13 @@ class _ValidationQueueScreenState extends State<ValidationQueueScreen> {
   }
 }
 
-class _ValidationCard extends StatelessWidget {
-  final ValidationItem item;
+class _PendingItemCard extends StatelessWidget {
+  final Item item;
 
-  const _ValidationCard({required this.item});
-
-  String _buildPhotoUrl(String? photoUrl) {
-    if (photoUrl == null || photoUrl.isEmpty) return '';
-    if (photoUrl.startsWith('http')) return photoUrl;
-    return '${Environment.apiBaseUrl.replaceAll('/api', '')}$photoUrl';
-  }
+  const _PendingItemCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
-    final fullPhotoUrl = _buildPhotoUrl(item.photoUrl);
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -147,10 +138,10 @@ class _ValidationCard extends StatelessWidget {
                   height: 36,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.rareBlue.withAlpha(25),
+                    color: item.catColor.withAlpha(25),
                   ),
-                  child: const Icon(Icons.inventory_2,
-                      size: 18, color: AppTheme.rareBlue),
+                  child: Icon(item.catIcon,
+                      size: 18, color: item.catColor),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -158,7 +149,7 @@ class _ValidationCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.itemName ?? 'Item: ${item.itemId}',
+                        item.displayName,
                         style: GoogleFonts.rajdhani(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -166,91 +157,35 @@ class _ValidationCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        item.storeName ?? 'Store: ${item.storeId}',
-                        style: const TextStyle(
+                        item.categoryName ?? 'Uncategorized',
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white30,
+                          color: item.catColor.withAlpha(180),
                         ),
                       ),
-                      if (item.categoryName != null)
-                        Text(
-                          item.categoryName!,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.rareBlue.withAlpha(150),
-                          ),
-                        ),
                     ],
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.conquestGreen.withAlpha(20),
+                    color: AppTheme.goldColor.withAlpha(20),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: AppTheme.conquestGreen.withAlpha(40)),
+                    border:
+                        Border.all(color: AppTheme.goldColor.withAlpha(40)),
                   ),
                   child: Text(
-                    '\$${item.price.toStringAsFixed(2)}',
+                    'PENDING',
                     style: GoogleFonts.orbitron(
-                      fontSize: 14,
+                      fontSize: 9,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.conquestGreen,
+                      color: AppTheme.goldColor,
                     ),
                   ),
                 ),
               ],
             ),
-            // Always show photo section
-            const SizedBox(height: 12),
-            if (fullPhotoUrl.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  fullPhotoUrl,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: AppTheme.surfaceLight,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.broken_image,
-                          size: 48, color: Colors.white24),
-                    ),
-                  ),
-                ),
-              )
-            else
-              Container(
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppTheme.surfaceLight,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.no_photography,
-                          size: 32, color: Colors.white24),
-                      const SizedBox(height: 4),
-                      Text(
-                        'No photo provided',
-                        style: GoogleFonts.rajdhani(
-                          fontSize: 12,
-                          color: Colors.white24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             const SizedBox(height: 14),
             Row(
               children: [
@@ -258,14 +193,15 @@ class _ValidationCard extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.dangerRed.withAlpha(60)),
+                      border: Border.all(
+                          color: AppTheme.dangerRed.withAlpha(60)),
                     ),
                     child: OutlinedButton.icon(
-                      onPressed: () => _vote(context, ValidationVote.flag),
-                      icon: const Icon(Icons.flag,
+                      onPressed: () => _vote(context, 'reject'),
+                      icon: const Icon(Icons.thumb_down,
                           color: AppTheme.dangerRed, size: 18),
                       label: Text(
-                        'FLAG',
+                        'REJECT',
                         style: GoogleFonts.orbitron(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -287,11 +223,11 @@ class _ValidationCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: FilledButton.icon(
-                      onPressed: () => _vote(context, ValidationVote.confirm),
-                      icon: const Icon(Icons.check,
+                      onPressed: () => _vote(context, 'approve'),
+                      icon: const Icon(Icons.thumb_up,
                           color: Colors.black87, size: 18),
                       label: Text(
-                        'CONFIRM',
+                        'APPROVE',
                         style: GoogleFonts.orbitron(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -314,16 +250,16 @@ class _ValidationCard extends StatelessWidget {
     );
   }
 
-  Future<void> _vote(BuildContext context, ValidationVote vote) async {
-    final provider = context.read<ValidationProvider>();
-    final success = await provider.submitVote(item.id, vote);
+  Future<void> _vote(BuildContext context, String vote) async {
+    final provider = context.read<ItemProvider>();
+    final success = await provider.voteOnItem(item.id, vote);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(success
-            ? (vote == ValidationVote.confirm
-                ? 'Intel confirmed!'
-                : 'Intel flagged!')
+            ? (vote == 'approve'
+                ? 'Item approved!'
+                : 'Item rejected.')
             : (provider.error ?? 'Vote failed')),
       ),
     );

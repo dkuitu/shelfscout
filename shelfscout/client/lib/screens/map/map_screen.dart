@@ -417,7 +417,7 @@ class _ItemFilterBar extends StatelessWidget {
                 label: item.displayName,
                 isSelected: selectedItem?.id == item.id,
                 onTap: () => onItemSelected(item),
-                icon: _categoryIcon(item.category),
+                icon: item.catIcon,
               )),
         ],
       ),
@@ -467,25 +467,4 @@ class _ItemFilterBar extends StatelessWidget {
     );
   }
 
-  IconData _categoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'dairy':
-        return Icons.water_drop;
-      case 'bakery':
-      case 'bread':
-        return Icons.bakery_dining;
-      case 'produce':
-      case 'fruit':
-      case 'vegetable':
-        return Icons.eco;
-      case 'meat':
-      case 'protein':
-        return Icons.restaurant;
-      case 'beverage':
-      case 'drink':
-        return Icons.local_cafe;
-      default:
-        return Icons.shopping_basket;
-    }
-  }
 }

@@ -5,16 +5,23 @@ export async function seed(knex: Knex): Promise<void> {
   await knex('weekly_cycles').del();
   await knex('items').del();
 
+  // Look up category IDs by name
+  const categories = await knex('categories').select('id', 'name');
+  const catMap: Record<string, string> = {};
+  for (const cat of categories) {
+    catMap[cat.name] = cat.id;
+  }
+
   const items = await knex('items')
     .insert([
-      { name: 'Milk (2L)', category: 'Dairy', unit: '2L' },
-      { name: 'Bread (White)', category: 'Bakery', unit: 'loaf' },
-      { name: 'Bananas', category: 'Produce', unit: 'lb' },
-      { name: 'Eggs (12pk)', category: 'Dairy', unit: 'dozen' },
-      { name: 'Chicken Breast', category: 'Meat', unit: 'kg' },
-      { name: 'Rice (2kg)', category: 'Pantry', unit: '2kg' },
-      { name: 'Butter', category: 'Dairy', unit: '454g' },
-      { name: 'Canned Tomatoes', category: 'Pantry', unit: '796ml' },
+      { name: 'Milk (2L)', category_id: catMap['Dairy'], unit: '2L', status: 'active' },
+      { name: 'Bread (White)', category_id: catMap['Bakery'], unit: 'loaf', status: 'active' },
+      { name: 'Bananas', category_id: catMap['Produce'], unit: 'lb', status: 'active' },
+      { name: 'Eggs (12pk)', category_id: catMap['Dairy'], unit: 'dozen', status: 'active' },
+      { name: 'Chicken Breast', category_id: catMap['Meat'], unit: 'kg', status: 'active' },
+      { name: 'Rice (2kg)', category_id: catMap['Pantry'], unit: '2kg', status: 'active' },
+      { name: 'Butter', category_id: catMap['Dairy'], unit: '454g', status: 'active' },
+      { name: 'Canned Tomatoes', category_id: catMap['Pantry'], unit: '796ml', status: 'active' },
     ])
     .returning('id');
 

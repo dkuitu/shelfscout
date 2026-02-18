@@ -15,14 +15,20 @@ export class ValidationService {
   async getQueue(userId: string, limit = 5) {
     // Random pending submissions, excluding user's own and already voted on
     const submissions = await db('submissions')
-      .where({ status: 'pending' })
-      .whereNot({ user_id: userId })
+      .leftJoin('items', 'submissions.item_id', 'items.id')
+      .leftJoin('stores', 'submissions.store_id', 'stores.id')
+      .leftJoin('categories', 'items.category_id', 'categories.id')
+      .where({ 'submissions.status': 'pending' })
+      .whereNot({ 'submissions.user_id': userId })
       .whereNotIn(
         'submissions.id',
         db('validations').where({ validator_id: userId }).select('submission_id')
       )
       .select(
         'submissions.*',
+        'items.name as item_name',
+        'stores.name as store_name',
+        'categories.name as category_name',
       )
       .orderByRaw('RANDOM()')
       .limit(limit);

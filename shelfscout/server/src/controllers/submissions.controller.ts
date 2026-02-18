@@ -24,6 +24,19 @@ export async function createSubmission(req: Request, res: Response, next: NextFu
   }
 }
 
+export async function uploadPhoto(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: 'No photo file provided' });
+      return;
+    }
+    const photoUrl = `/uploads/${req.file.filename}`;
+    res.json({ photo_url: photoUrl });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getSubmission(req: Request, res: Response, next: NextFunction) {
   try {
     const submission = await submissionsService.getById(req.params.id);

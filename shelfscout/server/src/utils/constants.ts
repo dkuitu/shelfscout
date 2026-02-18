@@ -21,3 +21,12 @@ export const TRUSTED_VALIDATOR_WEIGHT = 2;
 
 /** Number of accurate validations to earn Trusted Validator badge */
 export const TRUSTED_VALIDATOR_THRESHOLD = 50;
+
+/** Number of community approvals required to activate a user-created item */
+export const ITEM_APPROVAL_THRESHOLD = 3;
+
+/** Maximum upload file size in bytes (5MB) */
+export const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
+
+/** Allowed MIME types for photo uploads */
+export const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];

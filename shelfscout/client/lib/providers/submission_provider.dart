@@ -24,7 +24,7 @@ class SubmissionProvider extends ChangeNotifier {
     required String storeId,
     required String itemId,
     required double price,
-    String? photoUrl,
+    required String photoFilePath,
     required double gpsLat,
     required double gpsLng,
   }) async {
@@ -32,6 +32,10 @@ class SubmissionProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
+      // Step 1: Upload photo file
+      final photoUrl = await _submissionService.uploadPhoto(photoFilePath);
+
+      // Step 2: Create submission with returned URL
       await _submissionService.createSubmission(
         storeId: storeId,
         itemId: itemId,

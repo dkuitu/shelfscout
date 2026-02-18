@@ -11,6 +11,9 @@ class ValidationItem {
   final double? gpsLat;
   final double? gpsLng;
   final DateTime submittedAt;
+  final String? itemName;
+  final String? storeName;
+  final String? categoryName;
 
   ValidationItem({
     required this.id,
@@ -23,6 +26,9 @@ class ValidationItem {
     this.gpsLat,
     this.gpsLng,
     required this.submittedAt,
+    this.itemName,
+    this.storeName,
+    this.categoryName,
   });
 
   factory ValidationItem.fromJson(Map<String, dynamic> json) {
@@ -37,6 +43,9 @@ class ValidationItem {
       gpsLat: json['gps_lat'] != null ? double.tryParse(json['gps_lat'].toString()) : null,
       gpsLng: json['gps_lng'] != null ? double.tryParse(json['gps_lng'].toString()) : null,
       submittedAt: DateTime.parse(json['submitted_at'] as String),
+      itemName: json['item_name'] as String?,
+      storeName: json['store_name'] as String?,
+      categoryName: json['category_name'] as String?,
     );
   }
 }
